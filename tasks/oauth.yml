@@ -1,0 +1,25 @@
+---
+- name: Define OAuth provider config
+  set_fact:
+    nextcloud_oauth_config:
+      custom_oidc:
+        - name: '{{ nextcloud_oauth_name | mandatory }}'
+          title: '{{ nextcloud_oauth_name | mandatory }}'
+          tokenUrl: '{{ nextcloud_oauth_url | mandatory }}/token'
+          authorizeUrl: '{{ nextcloud_oauth_url | mandatory }}/auth'
+          userInfoUrl: '{{ nextcloud_oauth_url | mandatory }}/userinfo'
+          logoutUrl: '{{ nextcloud_oauth_url | mandatory }}/logout'
+          clientId: '{{ nextcloud_oauth_id | mandatory }}'
+          clientSecret: '{{ nextcloud_oauth_secret | mandatory }}'
+          scope: '{{ nextcloud_oauth_scope | mandatory }}'
+          style: '{{ nextcloud_oauth_style | mandatory }}'
+          displayNameClaim: ''
+          groupsClaim: ''
+          defaultGroup: ''
+
+- name: Configure OAuth provider
+  command: |
+    docker exec -u {{ nextcloud_app_cont_uid }} \
+      {{ nextcloud_app_cont_name }} \
+        php occ config:app:set sociallogin custom_providers \
+          --value='{{ nextcloud_oauth_config | to_json }}'

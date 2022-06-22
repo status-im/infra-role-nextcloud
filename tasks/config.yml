@@ -1,0 +1,43 @@
+---
+# Necessary for Restic backups
+- name: Create NextCloud group
+  group:
+    name: 'nextcloud'
+    gid: '{{ nextcloud_app_host_uid }}'
+
+- name: Create directory for webserver
+  file:
+    path:  '{{ item.p | mandatory }}'
+    owner: '{{ item.get("o", "dockremap") }}'
+    group: '{{ item.get("g", "dockremap") }}'
+    mode:  '{{ item.get("m", "0750") }}'
+    state: 'directory'
+  with_items:
+    - { p: '{{ nextcloud_service_path }}',       g: 'docker' }
+    - { p: '{{ nextcloud_app_cont_vol }}/data',  o: '{{ nextcloud_app_host_uid }}',     g: 'nextcloud' }
+    - { p: '{{ nextcloud_app_cont_vol }}/config',o: '{{ nextcloud_app_host_uid }}',     g: 'nextcloud' }
+    - { p: '{{ nextcloud_db_cont_vol }}/data',   o: '{{ nextcloud_db_host_uid }}',      g: 'docker',    m: '0777' }
+    - { p: '{{ nextcloud_docs_cont_vol }}/db',   o: '{{ nextcloud_docs_host_uids["db"] }}',  g: 'dockremap', m: '0777' }
+    - { p: '{{ nextcloud_docs_cont_vol }}/data', o: '{{ nextcloud_docs_host_uids["app"] }}', g: 'dockremap' }
+    - { p: '{{ nextcloud_docs_cont_vol }}/logs', o: '{{ nextcloud_docs_host_uids["app"] }}', g: 'dockremap' }
+  register: wat
+
+- name: Create NextCloud config
+  template:
+    src: 'config.php.j2'
+    dest: '{{ nextcloud_app_cont_vol }}/config/config.php'
+    owner: '{{ nextcloud_app_host_uid }}'
+    group: 'dockremap'
+    mode: 0644
+  register: nextcloud_config
+
+- name: Create Database env file
+  template:
+    src: '{{ item }}.j2'
+    dest: '{{ nextcloud_service_path }}/{{ item }}'
+    owner: 'dockremap'
+    group: 'docker'
+    mode: 0640
+  with_items:
+    - 'db.env'
+    - 'docs.env'

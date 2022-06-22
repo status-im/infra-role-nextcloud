@@ -1,0 +1,60 @@
+<?php
+/* https://github.com/nextcloud/server/blob/v23.0.0/config/config.sample.php */
+$CONFIG = [
+  'version' => '23.0.0.10',
+  'installed' => true,
+  /* AUTH */
+  'auth.webauthn.enabled' => {{ nextcloud_webauthn_native_enaled | to_json }},
+  /* ENCRYPTION */
+  /* WARNING: All three have to be present and the same */
+  'instanceid' => '{{ nextcloud_instance_id | mandatory }}',
+  'passwordsalt' => '{{ nextcloud_password_salt | mandatory }}',
+  'secret' => '{{ nextcloud_encryption_key | mandatory }}',
+  /* HTTP */
+  'htaccess.RewriteBase' => '/',
+  'overwrite.cli.url' => 'https://localhost',
+  'overwritehost' => '{{ nextcloud_domain }}',
+  'overwriteprotocol' => 'https',
+  'trusted_domains' => {{ nextcloud_trusted_domains | to_json }},
+  'trusted_proxies' => {{ nextcloud_trusted_proxies | to_json }},
+  'forwarded_for_headers' => {{ nextcloud_forwarded_for_headers | to_json }},
+  /* LOGS */
+  'log_type' => 'file',
+  'logfile' => '/data/nextcloud.log',
+  'loglevel' => {{ nextcloud_app_log_levels[nextcloud_app_log_level] }},
+  /* APP */
+  'datadirectory' => '/data',
+
+  'apps_paths' => [
+    ['path' => '/var/www/html/apps',        'url' => '/apps',        'writable' => false,],
+    ['path' => '/var/www/html/custom_apps', 'url' => '/custom_apps', 'writable' => true,],
+  ],
+  /* CACHE */
+  'memcache.local' => '\\OC\\Memcache\\APCu',
+  'memcache.distributed' => '\\OC\\Memcache\\Redis',
+  'memcache.locking' => '\\OC\\Memcache\\Redis',
+  'redis' => [
+    'host' => 'cache',
+    'password' => '{{ nextcloud_cache_pass | mandatory }}',
+    'port' => {{ nextcloud_cache_cont_port | mandatory }},
+  ],
+  /* MAIL */
+  'mail_smtpmode' => 'smtp',
+  'mail_smtpauth' => true,
+  'mail_smtpauthtype' => 'LOGIN',
+  'mail_smtphost' => '{{ nextcloud_smtp_host | mandatory }}',
+  'mail_smtpport' => '{{ nextcloud_smtp_port | mandatory }}',
+  'mail_smtpsecure' => '{{ nextcloud_smtp_method | mandatory }}',
+  'mail_smtpname' => '{{ nextcloud_smtp_user | mandatory }}',
+  'mail_smtppassword' => '{{ nextcloud_smtp_pass | mandatory }}',
+  'mail_from_address' => '{{ nextcloud_smtp_from | mandatory }}',
+  'mail_domain' => '{{ nextcloud_smtp_domain | mandatory }}',
+  /* DATABASE */
+  'dbtype' => 'pgsql',
+  'dbhost' => 'db',
+  'dbname' => '{{ nextcloud_db_name }}',
+  'dbuser' => '{{ nextcloud_db_user }}',
+  'dbpassword' => '{{ nextcloud_db_pass }}',
+  'dbport' => {{ nextcloud_db_cont_port }},
+  'dbtableprefix' => 'oc_',
+];

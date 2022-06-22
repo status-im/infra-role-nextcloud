@@ -1,0 +1,24 @@
+---
+- name: Check if installation is needed
+  command: |
+    docker exec -u {{ nextcloud_app_cont_uid }} \
+      {{ nextcloud_app_cont_name }} \
+        php occ list maintenance
+  register: nextcloud_occ_commands
+
+- name: Run intallation process
+  when: '"maintenance:install" in nextcloud_occ_commands.stdout'
+  command: |
+    docker exec -u {{ nextcloud_app_cont_uid }} \
+      {{ nextcloud_app_cont_name }} \
+        php occ maintenance:install \
+          --data-dir='/data'
+          --database='pgsql' \
+          --database-host='db' \
+          --database-port='{{ nextcloud_db_cont_port | mandatory }}' \
+          --database-name='{{ nextcloud_db_name | mandatory }}' \
+          --database-user='{{ nextcloud_db_user | mandatory }}' \
+          --database-pass='{{ nextcloud_db_pass | mandatory }}' \
+          --admin-user='{{ nextcloud_admin_username | mandatory }}' \
+          --admin-pass='{{ nextcloud_admin_password | mandatory }}' \
+          --admin-email='{{ nextcloud_admin_email | mandatory }}'

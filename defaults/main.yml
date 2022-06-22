@@ -1,0 +1,101 @@
+---
+nextcloud_service_name: 'nextcloud'
+nextcloud_service_path: '/docker/{{ nextcloud_service_name }}'
+nextcloud_compose_file: '{{ nextcloud_service_path }}/docker-compose.yml'
+
+# Proxy
+#nextcloud_domain: ~
+nextcloud_trusted_domains:
+  - 'localhost'
+  - '{{ nextcloud_domain }}'
+  - '{{ nextcloud_docs_domain }}'
+nextcloud_trusted_proxies:
+  - '127.0.0.0/8'   # localhost
+  - '10.0.0.0/8'    # VPN
+  - '172.17.0.0/16' # Docker
+nextcloud_forwarded_for_headers:
+  - 'HTTP_X_REAL_IP'
+  - 'HTTP_FORWARDED_FOR'
+  - 'HTTP_FORWARDED_PROTO'
+# Admin
+nextcloud_admin_email: 'admin@example.org'
+nextcloud_admin_username: 'admin'
+nextcloud_admin_password: 'changeMeIfYouCare'
+# Secrets
+#nextcloud_instance_id: ~
+#nextcloud_password_salt: ~
+#nextcloud_encryption_key: ~
+# Apps
+nextcloud_enabled_apps: []
+nextcloud_disabled_apps: []
+nextcloud_webauthn_native_enaled: true
+# Oauth
+nextcloud_oauth_enabled: false
+#nextcloud_oauth_name: 'Keycloak'
+#nextcloud_oauth_style: 'keycloak'
+#nextcloud_oauth_url: 'https://keycloak.example.org/auth/realms/status-im/protocol'
+#nextcloud_oauth_id: 'super-secret-oauth-id'
+#nextcloud_oauth_secret: 'super-secret-oauth-secret'
+#nextcloud_oauth_scope: 'openid'
+
+# App --------------------------------------------------------------------------
+nextcloud_app_cont_name: '{{ nextcloud_service_name }}-app'
+nextcloud_app_cont_vol:  '{{ nextcloud_service_path }}/app'
+nextcloud_app_cont_tag: '23.0.3-apache'
+nextcloud_app_cont_image: 'nextcloud:{{ nextcloud_app_cont_tag }}'
+nextcloud_app_cont_port: 9000
+nextcloud_app_cont_uid: 33
+nextcloud_app_host_uid: '{{ 100000 + nextcloud_app_cont_uid | int }}'
+nextcloud_app_log_levels: { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, FATAL: 4 }
+nextcloud_app_log_level: 'DEBUG'
+# Docs -------------------------------------------------------------------------
+nextcloud_docs_cont_name: '{{ nextcloud_service_name }}-docs'
+nextcloud_docs_cont_vol:  '{{ nextcloud_service_path }}/docs'
+nextcloud_docs_cont_verison: '7.0.0.132'
+nextcloud_docs_cont_image: 'onlyoffice/documentserver:{{ nextcloud_docs_cont_verison }}'
+nextcloud_docs_cont_port: 9980
+nextcloud_docs_cont_uids: { db: 107, queue: 108, app: 109 }
+nextcloud_docs_host_uids:
+  db:    '{{ 100000 + nextcloud_docs_cont_uids["db"] | int }}'
+  queue: '{{ 100000 + nextcloud_docs_cont_uids["queue"] | int }}'
+  app:   '{{ 100000 + nextcloud_docs_cont_uids["app"] | int }}'
+#nextcloud_docs_secret_key: ~
+# Cache ------------------------------------------------------------------------
+nextcloud_cache_cont_name: '{{ nextcloud_service_name }}-cache'
+nextcloud_cache_cont_vol:  '{{ nextcloud_service_path }}/cache'
+nextcloud_cache_cont_tag: '6.2.4-alpine'
+nextcloud_cache_cont_image: 'redis:{{ nextcloud_cache_cont_tag }}'
+nextcloud_cache_cont_port: 6379
+nextcloud_cache_pass: 'changeMeIfYouCare'
+# DB ---------------------------------------------------------------------------
+nextcloud_db_cont_name: '{{ nextcloud_service_name }}-db'
+nextcloud_db_cont_vol:  '{{ nextcloud_service_path }}/db'
+nextcloud_db_cont_tag: '13.3-alpine'
+nextcloud_db_cont_image: 'postgres:{{ nextcloud_db_cont_tag }}'
+nextcloud_db_cont_port: 5432
+nextcloud_db_cont_uid: 70
+nextcloud_db_host_uid: '{{ 100000 + nextcloud_db_cont_uid | int }}'
+nextcloud_db_name: 'nextcloud'
+nextcloud_db_user: 'nextcloud'
+nextcloud_db_pass: 'changeMeIfYouCare'
+
+# Backups
+nextcloud_db_backup_service_name: 'dump-{{ nextcloud_service_name }}-db'
+nextcloud_db_backup_user: 'root'
+nextcloud_db_backup_frequency: 'daily'
+nextcloud_db_backup_timeout: 120
+
+# EMail
+nextcloud_smtp_enabled: false
+#nextcloud_smtp_port: 587
+#nextcloud_smtp_host: 'smtp.example.org'
+#nextcloud_smtp_user: 'smtp-login-user'
+#nextcloud_smtp_pass: 'super-secret-password'
+#nextcloud_smtp_method: 'tls'
+#nextcloud_smtp_domain: 'example.org'
+#nextcloud_smtp_from: 'nextcloud'
+
+# general container management
+compose_recreate: 'smart'
+compose_state: 'present'
+compose_restart: false

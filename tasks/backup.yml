@@ -1,0 +1,23 @@
+---
+- name: 'Create timer for PostgreSQL backup'
+  include_role: name=systemd-timer
+  vars:
+    systemd_timer_description: 'Dump NextCloud PostgreSQL database.'
+    systemd_timer_name: '{{ nextcloud_db_backup_service_name }}'
+    systemd_timer_user: '{{ nextcloud_db_backup_user }}'
+    systemd_timer_frequency: '{{ nextcloud_db_backup_frequency }}'
+    systemd_timer_timeout_sec: '{{ nextcloud_db_backup_timeout }}'
+    systemd_timer_after_extra: 'docker.service'
+    systemd_timer_start_on_creation: false
+    systemd_timer_script_content: |
+      #!/usr/bin/env bash
+      BKP_DIR="{{ nextcloud_db_cont_vol }}/backup/{{ nextcloud_db_name }}"
+      rm -vfr "${BKP_DIR}"
+      /usr/bin/docker exec \
+        -i -e PGPORT={{ nextcloud_db_cont_port }} {{ nextcloud_db_cont_name }} \
+          pg_dump \
+            -F directory \
+            -f "/backup/{{ nextcloud_db_name }}" \
+            -U {{ nextcloud_db_user }} \
+            {{ nextcloud_db_name }}
+      chmod 750 -R "${BKP_DIR}"

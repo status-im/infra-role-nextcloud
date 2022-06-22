@@ -1,0 +1,19 @@
+---
+- name: Create Docker Compose file
+  template:
+    src: 'docker-compose.yml.j2'
+    dest: '{{ nextcloud_compose_file }}'
+    owner: 'dockremap'
+    group: 'docker'
+    mode: 0640
+
+- name: Create service containers
+  docker_compose:
+    project_src: '{{ nextcloud_service_path }}'
+    state: '{{ compose_state }}'
+    recreate: '{{ compose_recreate }}'
+    # WARNING: This can cause restart RIGHT after creation, breaking installation.
+    restarted: '{{ nextcloud_config.changed or compose_restart }}'
+    pull: true
+    # Avoid deprecation warning
+    tls_hostname: 'localhost'

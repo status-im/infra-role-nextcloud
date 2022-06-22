@@ -1,0 +1,9 @@
+---
+- import_tasks: config.yml
+- import_tasks: docker.yml
+- import_tasks: install.yml
+- import_tasks: apps.yml
+- import_tasks: backup.yml
+- import_tasks: oauth.yml
+  when: nextcloud_oauth_enabled
+- import_tasks: consul.yml

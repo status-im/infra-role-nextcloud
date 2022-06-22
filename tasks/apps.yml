@@ -1,0 +1,39 @@
+---
+- name: Add SocialLogin to enabled apps
+  set_fact:
+    nextcloud_enabled_apps: '{{ nextcloud_enabled_apps + ["sociallogin"] }}'
+  when: nextcloud_oauth_enabled
+
+- name: Check installed applications
+  command: |
+    docker exec -u {{ nextcloud_app_cont_uid }} \
+      {{ nextcloud_app_cont_name }} \
+        php occ app:list --output=json
+  register: nextcloud_app_list_raw
+
+- name: Parse apps JSON list
+  set_fact:
+    nextcloud_app_list: '{{ nextcloud_app_list_raw.stdout | from_json }}'
+
+- name: Install applications
+  command: |
+    docker exec -u {{ nextcloud_app_cont_uid }} \
+      {{ nextcloud_app_cont_name }} \
+        php occ app:install {{ item }}
+  with_items: '{{ nextcloud_enabled_apps }}'
+  when: item not in nextcloud_app_list["enabled"]
+
+- name: Enable applications
+  command: |
+    docker exec -u {{ nextcloud_app_cont_uid }} \
+      {{ nextcloud_app_cont_name }} \
+        php occ app:enable {{ item }}
+  with_items: '{{ nextcloud_enabled_apps }}'
+  when: item not in nextcloud_app_list["enabled"]
+
+- name: Disable applications
+  command: |
+    docker exec -u {{ nextcloud_app_cont_uid }} \
+      {{ nextcloud_app_cont_name }} \
+        php occ app:disable {{ item }}
+  with_items: '{{ nextcloud_disabled_apps }}'

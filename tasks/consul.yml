@@ -1,0 +1,18 @@
+---
+- name: Create Consul service definition
+  include_role: name=consul-service
+  vars:
+    consul_config_name: '{{ nextcloud_service_name }}'
+    consul_services:
+      - name: '{{ nextcloud_service_name }}'
+        tags: ['nextcloud']
+        port: '{{ nextcloud_app_cont_port }}'
+        address: '{{ ansible_local.wireguard.vpn_ip }}'
+        checks:
+          - id: '{{ nextcloud_service_name }}-app-health'
+            type: 'http'
+            http: 'http://localhost:{{ nextcloud_app_cont_port }}/status.php'
+
+          - id: '{{ nextcloud_service_name }}-docs-health'
+            type: 'http'
+            http: 'http://localhost:{{ nextcloud_docs_cont_port }}/'

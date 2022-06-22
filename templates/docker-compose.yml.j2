@@ -1,0 +1,78 @@
+---
+version: '3.7'
+services:
+  app:
+    container_name: '{{ nextcloud_app_cont_name }}'
+    image: '{{ nextcloud_app_cont_image }}'
+    restart: 'always'
+    entrypoint: '/usr/local/bin/apache2-foreground'
+    ports:
+      - '{{ nextcloud_app_cont_port }}:80'
+    volumes:
+      - '{{ nextcloud_app_cont_vol }}/data:/data'
+      - '{{ nextcloud_app_cont_vol }}/config:/var/www/html/config'
+    depends_on:
+      - db
+      - cache
+      - docs
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:80/status.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  docs:
+    container_name: '{{ nextcloud_docs_cont_name }}'
+    image: '{{ nextcloud_docs_cont_image }}'
+    restart: always
+    env_file: '{{ nextcloud_service_path }}/docs.env'
+    ports:
+      - '{{ nextcloud_docs_cont_port }}:80'
+    volumes:
+      - '{{ nextcloud_docs_cont_vol }}/db:/var/lib/postgresql'
+      - '{{ nextcloud_docs_cont_vol }}/data:/var/lib/onlyoffice'
+      - '{{ nextcloud_docs_cont_vol }}/logs:/var/log/onlyoffice'
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:80/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  cache:
+    container_name: '{{ nextcloud_cache_cont_name }}'
+    image: '{{ nextcloud_cache_cont_image }}'
+    restart: 'always'
+    # docker-entrypoint.sh tries to chown /data which will not work
+    entrypoint: redis-server
+    command: >
+      --port '{{ nextcloud_cache_cont_port }}'
+      --requirepass '{{ nextcloud_cache_pass }}'
+    ports:
+      - '{{ nextcloud_cache_cont_port }}:{{ nextcloud_cache_cont_port }}'
+    volumes:
+      - '{{ nextcloud_cache_cont_vol }}/data:/data'
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  db:
+    container_name: '{{ nextcloud_db_cont_name }}'
+    image: '{{ nextcloud_db_cont_image }}'
+    restart: 'always'
+    env_file: '{{ nextcloud_service_path }}/db.env'
+    ports:
+      - '{{ nextcloud_db_cont_port }}:{{ nextcloud_db_cont_port }}/tcp'
+    command: |
+      -p {{ nextcloud_db_cont_port }}
+    tmpfs:
+      - '/run/postgresql:size=512K'
+      - '/tmp:size=256K'
+    volumes:
+      - '{{ nextcloud_db_cont_vol }}/data:/var/lib/postgresql/data'
+      - '{{ nextcloud_db_cont_vol }}/backup:/backup'
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "{{ nextcloud_db_user }}"]
+      interval: 5s
+      retries: 5
