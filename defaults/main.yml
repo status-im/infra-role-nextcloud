@@ -41,7 +41,7 @@ nextcloud_oauth_enabled: false
 # App --------------------------------------------------------------------------
 nextcloud_app_cont_name: '{{ nextcloud_service_name }}-app'
 nextcloud_app_cont_vol:  '{{ nextcloud_service_path }}/app'
-nextcloud_app_cont_tag: '23.0.3-apache'
+nextcloud_app_cont_tag: '24.0.2-apache'
 nextcloud_app_cont_image: 'nextcloud:{{ nextcloud_app_cont_tag }}'
 nextcloud_app_cont_port: 9000
 nextcloud_app_cont_uid: 33
