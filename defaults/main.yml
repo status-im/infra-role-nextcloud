@@ -54,11 +54,12 @@ nextcloud_docs_cont_vol:  '{{ nextcloud_service_path }}/docs'
 nextcloud_docs_cont_verison: '7.0.0.132'
 nextcloud_docs_cont_image: 'onlyoffice/documentserver:{{ nextcloud_docs_cont_verison }}'
 nextcloud_docs_cont_port: 9980
-nextcloud_docs_cont_uids: { db: 107, queue: 108, app: 109 }
+nextcloud_docs_cont_uids: { db: 107, queue: 108, app: 109, logs: 112 }
 nextcloud_docs_host_uids:
   db:    '{{ 100000 + nextcloud_docs_cont_uids["db"] | int }}'
   queue: '{{ 100000 + nextcloud_docs_cont_uids["queue"] | int }}'
   app:   '{{ 100000 + nextcloud_docs_cont_uids["app"] | int }}'
+  logs:  '{{ 100000 + nextcloud_docs_cont_uids["logs"] | int }}'
 #nextcloud_docs_secret_key: ~
 # Cache ------------------------------------------------------------------------
 nextcloud_cache_cont_name: '{{ nextcloud_service_name }}-cache'

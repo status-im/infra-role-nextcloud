@@ -1,8 +1,11 @@
 <?php
 /* https://github.com/nextcloud/server/blob/v23.0.0/config/config.sample.php */
 $CONFIG = [
+{# When these keys are present DB migrations are not executed. #}
+{% if not nextcloud_new_installation %}
   'version' => '23.0.0.10',
   'installed' => true,
+{% endif %}
   /* AUTH */
   'auth.webauthn.enabled' => {{ nextcloud_webauthn_native_enaled | to_json }},
   /* ENCRYPTION */

@@ -4,6 +4,11 @@
   group:
     name: 'nextcloud'
     gid: '{{ nextcloud_app_host_uid }}'
+  register: nextcloud_group
+
+- name: Detect new installation
+  set_fact:
+    nextcloud_new_installation: '{{ nextcloud_group.changed }}'
 
 - name: Create directory for webserver
   file:
@@ -17,9 +22,9 @@
     - { p: '{{ nextcloud_app_cont_vol }}/data',  o: '{{ nextcloud_app_host_uid }}',     g: 'nextcloud' }
     - { p: '{{ nextcloud_app_cont_vol }}/config',o: '{{ nextcloud_app_host_uid }}',     g: 'nextcloud' }
     - { p: '{{ nextcloud_db_cont_vol }}/data',   o: '{{ nextcloud_db_host_uid }}',      g: 'docker',    m: '0777' }
-    - { p: '{{ nextcloud_docs_cont_vol }}/db',   o: '{{ nextcloud_docs_host_uids["db"] }}',  g: 'dockremap', m: '0777' }
-    - { p: '{{ nextcloud_docs_cont_vol }}/data', o: '{{ nextcloud_docs_host_uids["app"] }}', g: 'dockremap' }
-    - { p: '{{ nextcloud_docs_cont_vol }}/logs', o: '{{ nextcloud_docs_host_uids["app"] }}', g: 'dockremap' }
+    - { p: '{{ nextcloud_docs_cont_vol }}/db',   o: '{{ nextcloud_docs_host_uids["db"] }}',   g: 'dockremap', m: '0777' }
+    - { p: '{{ nextcloud_docs_cont_vol }}/data', o: '{{ nextcloud_docs_host_uids["app"] }}',  g: 'dockremap' }
+    - { p: '{{ nextcloud_docs_cont_vol }}/logs', o: '{{ nextcloud_docs_host_uids["logs"] }}', g: 'dockremap' }
   register: wat
 
 - name: Create NextCloud config
@@ -39,5 +44,6 @@
     group: 'docker'
     mode: 0640
   with_items:
-    - 'db.env'
+    - 'app.env'
     - 'docs.env'
+    - 'db.env'

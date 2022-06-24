@@ -5,7 +5,7 @@ services:
     container_name: '{{ nextcloud_app_cont_name }}'
     image: '{{ nextcloud_app_cont_image }}'
     restart: 'always'
-    entrypoint: '/usr/local/bin/apache2-foreground'
+    env_file: '{{ nextcloud_service_path }}/app.env'
     ports:
       - '{{ nextcloud_app_cont_port }}:80'
     volumes:

@@ -6,19 +6,40 @@
         php occ list maintenance
   register: nextcloud_occ_commands
 
-- name: Run intallation process
+- name: Run installation process
   when: '"maintenance:install" in nextcloud_occ_commands.stdout'
+  register: nextcloud_installation
   command: |
     docker exec -u {{ nextcloud_app_cont_uid }} \
       {{ nextcloud_app_cont_name }} \
         php occ maintenance:install \
-          --data-dir='/data'
-          --database='pgsql' \
-          --database-host='db' \
-          --database-port='{{ nextcloud_db_cont_port | mandatory }}' \
-          --database-name='{{ nextcloud_db_name | mandatory }}' \
-          --database-user='{{ nextcloud_db_user | mandatory }}' \
-          --database-pass='{{ nextcloud_db_pass | mandatory }}' \
-          --admin-user='{{ nextcloud_admin_username | mandatory }}' \
-          --admin-pass='{{ nextcloud_admin_password | mandatory }}' \
-          --admin-email='{{ nextcloud_admin_email | mandatory }}'
+          --data-dir=/data
+          --database=pgsql \
+          --database-host=db \
+          --database-port={{ nextcloud_db_cont_port | mandatory }} \
+          --database-name={{ nextcloud_db_name | mandatory }} \
+          --database-user={{ nextcloud_db_user | mandatory }} \
+          --database-pass={{ nextcloud_db_pass | mandatory }} \
+          --admin-user={{ nextcloud_admin_username | mandatory }} \
+          --admin-pass={{ nextcloud_admin_password | mandatory }} \
+          --admin-email={{ nextcloud_admin_email | mandatory }}
+
+- name: Mark installation as done
+  set_fact:
+    nextcloud_new_installation: false
+
+- name: Update NextCloud config
+  template:
+    src: 'config.php.j2'
+    dest: '{{ nextcloud_app_cont_vol }}/config/config.php'
+    owner: '{{ nextcloud_app_host_uid }}'
+    group: 'dockremap'
+    mode: 0644
+  register: nextcloud_config
+
+- name: Run upgrade process
+  when: nextcloud_installation.changed
+  command: |
+    docker exec -u {{ nextcloud_app_cont_uid }} \
+      {{ nextcloud_app_cont_name }} \
+        php occ upgrade
