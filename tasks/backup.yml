@@ -1,6 +1,6 @@
 ---
 - name: 'Create timer for PostgreSQL backup'
-  include_role: name=systemd-timer
+  include_role: name=infra-role-systemd-timer
   vars:
     systemd_timer_description: 'Dump NextCloud PostgreSQL database.'
     systemd_timer_name: '{{ nextcloud_db_backup_service_name }}'
