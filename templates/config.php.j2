@@ -3,7 +3,7 @@
 $CONFIG = [
 {# When these keys are present DB migrations are not executed. #}
 {% if not nextcloud_new_installation %}
-  'version' => '23.0.0.10',
+  'version' => '{{ nextcloud_version }}',
   'installed' => true,
 {% endif %}
   /* AUTH */
