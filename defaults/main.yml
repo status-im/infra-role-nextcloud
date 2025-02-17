@@ -3,7 +3,7 @@ nextcloud_service_name: 'nextcloud'
 nextcloud_service_path: '/docker/{{ nextcloud_service_name }}'
 nextcloud_compose_file: '{{ nextcloud_service_path }}/docker-compose.yml'
 
-nextcloud_version: '28.0.14'
+nextcloud_version: '29.0.12'
 nextcloud_timezone: 'UTC'
 nextcloud_phone_region: 'DE'
 
