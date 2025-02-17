@@ -60,4 +60,7 @@ $CONFIG = [
   'dbpassword' => '{{ nextcloud_db_pass }}',
   'dbport' => {{ nextcloud_db_cont_port }},
   'dbtableprefix' => 'oc_',
+  /* LOCALE */
+  'default_timezone' => '{{ nextcloud_timezone }}',
+  'default_phone_region' => '{{ nextcloud_phone_region }}',
 ];
