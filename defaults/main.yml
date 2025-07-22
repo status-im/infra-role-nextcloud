@@ -68,7 +68,7 @@ nextcloud_docs_host_uids:
 # Cache ------------------------------------------------------------------------
 nextcloud_cache_cont_name: '{{ nextcloud_service_name }}-cache'
 nextcloud_cache_cont_vol:  '{{ nextcloud_service_path }}/cache'
-nextcloud_cache_cont_tag: '6.2.4-alpine'
+nextcloud_cache_cont_tag: '7.4.5-alpine'
 nextcloud_cache_cont_image: 'redis:{{ nextcloud_cache_cont_tag }}'
 nextcloud_cache_cont_port: 6379
 nextcloud_cache_pass: 'changeMeIfYouCare'
