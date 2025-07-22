@@ -58,6 +58,11 @@ nextcloud_docs_cont_vol:  '{{ nextcloud_service_path }}/docs'
 nextcloud_docs_cont_verison: '9.0.3.1'
 nextcloud_docs_cont_image: 'onlyoffice/documentserver:{{ nextcloud_docs_cont_verison }}'
 nextcloud_docs_cont_port: 9980
+nextcloud_docs_cont_db_host: 'localhost' # WARNING: Magic value, anything else assumes separate DB.
+nextcloud_docs_cont_db_port: 5432
+nextcloud_docs_cont_db_name: 'onlyoffice'
+nextcloud_docs_cont_db_user: 'onlyoffice'
+nextcloud_docs_cont_db_pass: 'onlyoffice'
 nextcloud_docs_cont_uids: { db: 107, queue: 108, app: 109, logs: 112 }
 nextcloud_docs_host_uids:
   db:    '{{ 100000 + nextcloud_docs_cont_uids["db"] | int }}'
