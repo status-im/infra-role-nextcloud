@@ -47,3 +47,19 @@
     - 'app.env'
     - 'docs.env'
     - 'db.env'
+
+- name: Admin PSQL config file
+  template:
+    src:   'psql.env.j2'
+    dest:  '{{ nextcloud_service_path }}/.psql.env'
+    owner: 'root'
+    group: 'adm'
+    mode: 0640
+
+- name: Admin PSQL wrapper script
+  template:
+    src:   'admin.sh.j2'
+    dest:  '{{ nextcloud_service_path }}/admin.sh'
+    owner: 'root'
+    group: 'adm'
+    mode: 0750
